@@ -1,4 +1,3 @@
-from tkinter.constants import E
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import PySimpleGUI as sg
 import cv2 as cv
@@ -14,7 +13,7 @@ UI_STRING_FORMAT = "Image Preview are 500x500, image are {0}x{1}"
 menu_def = [
     ['&File', ['&Open', '---', 'Exit']],
     ['&Edit', ['Brightness',
-               'Inverse (Negative)', 'Restore', 'Histogram Equalization', 'Downsample by 0.5', 'Upsample by 1.5', 'Quantize']],
+               'Inverse (Negative)', 'Restore', 'Histogram Equalization', 'Downsample by 0.5', 'Upsample by 1.5', 'Quantize', 'Low Pass Filter (Average)', 'High Pass Filter (Edge Detection)', 'Band Pass Filter (Sharpening)']],
     ['&View', ['Original Image', 'Histogram']]
 ]
 
@@ -225,6 +224,33 @@ while True:
                     image_element.update(data=encode_img(shown_image))
             except Exception:
                 sg.popup("Error", "The value you input are not valid")
+        elif event == 'Low Pass Filter (Average)':
+            kernel = np.ones((3, 3), np.float32) / 9
+            shown_image = cv.filter2D(shown_image, -1, kernel)
+
+            image_element.update(data=encode_img(shown_image))
+        elif event == 'High Pass Filter (Edge Detection)':
+            kernel = np.array(
+                [
+                    [1, 1, 1],
+                    [0, 0, 0],
+                    [-1, -1, -1]
+                ]
+            )
+            shown_image = cv.filter2D(shown_image, -1, kernel)
+
+            image_element.update(data=encode_img(shown_image))
+        elif event == 'Band Pass Filter (Sharpening)':
+            kernel = np.array(
+                [
+                    [0, -1, 0],
+                    [-1, 5, -1],
+                    [0, -1, 0]
+                ]
+            )
+            shown_image = cv.filter2D(shown_image, -1, kernel)
+
+            image_element.update(data=encode_img(shown_image))
 
         if not fig_agg is None:
             delete_fig_agg(fig_agg)
