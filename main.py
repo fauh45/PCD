@@ -1,10 +1,13 @@
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import PySimpleGUI as sg
-import cv2 as cv
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg')
+
+import matplotlib.pyplot as plt
+import numpy as np
+import cv2 as cv
+import PySimpleGUI as sg
+from reportlab.graphics import renderPM
+from svglib.svglib import svg2rlg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 IMAGE_SIZE = (500, 500)
@@ -141,7 +144,7 @@ while True:
 
     if event == 'Open':
         filename = sg.popup_get_file("Image File", file_types=(
-            ("Windows Bitmaps", "*.BMP;*.DIP"), ("JPEG", "*.JPEG;*.JPG;*.JPE"), ("Portable Network Graphics", "*.PNG"), ("TIFF files", "*.TIFF;*.TIF"), ("GIF Files", "*.GIF"),))
+            ("Windows Bitmaps", "*.BMP;*.DIP"), ("JPEG", "*.JPEG;*.JPG;*.JPE"), ("Portable Network Graphics", "*.PNG"), ("TIFF files", "*.TIFF;*.TIF"), ("GIF Files", "*.GIF"), ("Vector Graphics", "*.SVG"), ))
 
         if filename != None and filename != '':
             file_format = filename.split(".")[-1]
@@ -152,6 +155,11 @@ while True:
                 cap.release()
 
                 shown_image = image
+            elif file_format == "svg":
+                image = svg2rlg(filename)
+                image = np.array(renderPM.drawToPIL(image))
+
+                shown_image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
             else:
                 shown_image = cv.imread(filename, cv.IMREAD_COLOR)
 
